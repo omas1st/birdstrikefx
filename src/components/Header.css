@@ -1,0 +1,195 @@
+.header {
+  background: #1a1a2e;
+  border-bottom: 1px solid #2d2d44;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  height: 70px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+.header-left .journal-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #4fc3f7;
+  text-decoration: none;
+  letter-spacing: 1px;
+}
+
+/* Hamburger Menu */
+.header-center {
+  position: relative;
+}
+
+.menu-toggle {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 30px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 10;
+}
+
+.menu-toggle .bar {
+  width: 100%;
+  height: 3px;
+  background: #ddd;
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.menu-toggle.open .bar:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.menu-toggle.open .bar:nth-child(2) {
+  opacity: 0;
+}
+
+.menu-toggle.open .bar:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+
+/* Dropdown Navigation */
+.dropdown-nav {
+  position: absolute;
+  top: calc(100% + 16px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e1e2f;
+  border: 1px solid #333;
+  border-radius: 12px;
+  width: 220px;
+  padding: 12px 0;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+}
+
+.dropdown-nav .nav-link {
+  color: #bbb;
+  text-decoration: none;
+  padding: 12px 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.dropdown-nav .nav-link:hover {
+  background: #2d2d44;
+  color: #4fc3f7;
+}
+
+/* Notification styles (unchanged from previous) */
+.header-right {
+  position: relative;
+}
+
+.notification-bell {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #ddd;
+  position: relative;
+  padding: 8px;
+}
+
+.badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: #ff5252;
+  color: white;
+  font-size: 0.7rem;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-dropdown {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  background: #1e1e2f;
+  border: 1px solid #333;
+  border-radius: 12px;
+  width: 340px;
+  max-height: 400px;
+  overflow-y: auto;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  z-index: 1001;
+  padding: 16px;
+}
+
+.dropdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.dropdown-header h4 {
+  color: #fff;
+  font-weight: 600;
+}
+
+.dropdown-header button {
+  background: none;
+  border: none;
+  color: #4fc3f7;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.notification-list {
+  list-style: none;
+}
+
+.notification-item {
+  padding: 10px 12px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+  border-left: 3px solid transparent;
+}
+
+.notification-item.unread {
+  background: #2a2a3e;
+  border-left-color: #4fc3f7;
+}
+
+.notification-item.read {
+  background: #1a1a2a;
+  opacity: 0.7;
+}
+
+.notification-item p {
+  font-size: 0.85rem;
+  color: #ccc;
+  margin-bottom: 4px;
+}
+
+.notification-item small {
+  font-size: 0.7rem;
+  color: #777;
+}
+
+.no-notifications {
+  text-align: center;
+  color: #777;
+  padding: 20px;
+}

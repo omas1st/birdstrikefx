@@ -1,0 +1,86 @@
+.trades-data-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.trades-data-container h2 {
+  color: #4fc3f7;
+  margin-bottom: 24px;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stats p {
+  background: #1a1a2e;
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: 1px solid #2d2d44;
+  color: #ccc;
+  font-weight: 500;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  background: #1a1a2e;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #2d2d44;
+}
+
+.filters label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #aaa;
+  font-size: 0.85rem;
+}
+
+.filters select,
+.filters input {
+  background: #0f0f1f;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #eee;
+}
+
+button {
+  margin: 10px 0;
+  background: #4fc3f7;
+  color: #0a0a0a;
+  font-weight: 600;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#trades-table {
+  max-height: 600px;
+  overflow-y: auto;
+  background: #1a1a2e;
+  border-radius: 12px;
+  padding: 0;
+  border: 1px solid #2d2d44;
+}
+
+#trades-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#trades-table th {
+  position: sticky;
+  top: 0;
+  background: #252540;
+  z-index: 1;
+}

@@ -1,0 +1,49 @@
+.final-analysis-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.final-analysis-container h2 {
+  color: #4fc3f7;
+  margin-bottom: 24px;
+  font-size: 2rem;
+}
+
+.section {
+  background: #1a1a2e;
+  border: 1px solid #2d2d44;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.section h3 {
+  color: #ddd;
+  margin-bottom: 12px;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.section p {
+  color: #bbb;
+  margin-bottom: 10px;
+}
+
+.section ul {
+  list-style: disc;
+  padding-left: 20px;
+  color: #ccc;
+}
+
+.section li {
+  padding: 4px 0;
+}
+
+/* For critical / warning messages */
+.section.flagged {
+  border-left: 4px solid #ff5252;
+}
+
+.section.hot {
+  border-left: 4px solid #4fc3f7;
+}
