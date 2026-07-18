@@ -1,6 +1,7 @@
 .trades-data-container {
   max-width: 1400px;
   margin: 0 auto;
+  padding: 0 16px; /* add some horizontal padding for small screens */
 }
 
 .trades-data-container h2 {
@@ -8,6 +9,7 @@
   margin-bottom: 24px;
 }
 
+/* Stats bar */
 .stats {
   display: flex;
   flex-wrap: wrap;
@@ -22,8 +24,11 @@
   border: 1px solid #2d2d44;
   color: #ccc;
   font-weight: 500;
+  flex: 1 1 180px; /* flexible boxes so they shrink and wrap nicely */
+  text-align: center;
 }
 
+/* Filter section – main container */
 .filters {
   display: flex;
   flex-wrap: wrap;
@@ -36,14 +41,19 @@
   border: 1px solid #2d2d44;
 }
 
+/* Each filter label + input/select wrapped together */
 .filters label {
   display: flex;
   align-items: center;
   gap: 6px;
   color: #aaa;
   font-size: 0.85rem;
+  /* Let them grow/shrink */
+  flex: 1 1 auto;
+  min-width: 140px;
 }
 
+/* Inputs & selects inside filters */
 .filters select,
 .filters input {
   background: #0f0f1f;
@@ -51,8 +61,11 @@
   border-radius: 6px;
   padding: 8px 12px;
   color: #eee;
+  max-width: 100%;
+  flex: 1 1 auto;
 }
 
+/* Buttons */
 button {
   margin: 10px 0;
   background: #4fc3f7;
@@ -64,6 +77,7 @@ button {
   cursor: pointer;
 }
 
+/* Trade table container */
 #trades-table {
   max-height: 600px;
   overflow-y: auto;
@@ -83,4 +97,60 @@ button {
   top: 0;
   background: #252540;
   z-index: 1;
+}
+
+/* Override default th/td from global if needed */
+#trades-table th,
+#trades-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid #2d2d44;
+  white-space: nowrap; /* prevent line breaks on small columns */
+}
+
+/* On very narrow screens, allow table to scroll horizontally if needed */
+#trades-table {
+  overflow-x: auto;
+}
+
+/* ---- Responsive adjustments ---- */
+@media (max-width: 768px) {
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .filters label {
+    /* stack label and select/input vertically */
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .filters select,
+  .filters input {
+    width: 100%;
+  }
+
+  .stats {
+    flex-direction: column;
+  }
+
+  .stats p {
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .trades-data-container {
+    padding: 0 8px;
+  }
+
+  #trades-table th,
+  #trades-table td {
+    padding: 8px 6px;
+    font-size: 0.8rem;
+  }
 }
