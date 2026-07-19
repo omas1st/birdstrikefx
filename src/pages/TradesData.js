@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { getTrades } from '../services/api';
+import { getTrades, deleteTrade } from '../services/api';
 import { PAIRS, STRATEGIES } from '../utils/constants';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -131,6 +131,17 @@ const TradesData = () => {
     fetchTrades();
   }, [fetchTrades]);
 
+  const handleDeleteTrade = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this trade?')) return;
+    try {
+      await deleteTrade(id);
+      fetchTrades(); // Refresh the list and stats
+    } catch (err) {
+      console.error('Delete failed', err);
+      alert('Failed to delete trade');
+    }
+  };
+
   const downloadTradesPDF = async () => {
     const element = document.getElementById('trades-table');
     if (!element) return;
@@ -232,16 +243,28 @@ const TradesData = () => {
           <table>
             <thead>
               <tr>
-                <th>Date</th><th>Pair</th><th>Strategy</th><th>Outcome</th>
+                <th>Date</th>
+                <th>Pair</th>
+                <th>Strategy</th>
+                <th>Outcome</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
-              {trades.map((trade, index) => (
-                <tr key={trade._id || index}>
+              {trades.map((trade) => (
+                <tr key={trade._id}>
                   <td>{new Date(trade.date).toLocaleDateString()}</td>
                   <td>{trade.pair}</td>
                   <td>{trade.strategy}</td>
                   <td>{trade.outcome}</td>
+                  <td>
+                    <button
+                      className="delete-trade-btn"
+                      onClick={() => handleDeleteTrade(trade._id)}
+                    >
+                      🗑️ Delete
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

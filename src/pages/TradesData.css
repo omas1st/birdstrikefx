@@ -113,6 +113,24 @@ button {
   overflow-x: auto;
 }
 
+/* ---- Delete button styling ---- */
+.delete-trade-btn {
+  background: transparent;
+  color: #ff5252;
+  border: 1px solid #ff5252;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin: 0; /* overrides button margin for table cells */
+}
+
+.delete-trade-btn:hover {
+  background: #ff5252;
+  color: #fff;
+}
+
 /* ---- Responsive adjustments ---- */
 @media (max-width: 768px) {
   .filters {
