@@ -151,29 +151,6 @@ const Overview = () => {
     pdf.save('overview.pdf');
   };
 
-  const renderTradesList = () => {
-    if (!data || !data.trades) return null;
-    return (
-      <table>
-        <thead>
-          <tr>
-            <th>Date</th><th>Pair</th><th>Strategy</th><th>Outcome</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.trades.map((trade, idx) => (
-            <tr key={idx}>
-              <td>{new Date(trade.date).toLocaleDateString()}</td>
-              <td>{trade.pair}</td>
-              <td>{trade.strategy}</td>
-              <td>{trade.outcome}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    );
-  };
-
   return (
     <div className="overview-container">
       <h2>Overview</h2>
@@ -208,53 +185,63 @@ const Overview = () => {
         </div>
       </div>
 
-      {loading && <p>Loading...</p>}
+      {loading && <p className="loading-message">Loading...</p>}
       {data && (
         <>
-          {/* Section 1b Trades List */}
-          <div id="section1b" className="section">
-            <h3>Trade List ({data.trades ? data.trades.length : 0})</h3>
-            {renderTradesList()}
-          </div>
-
           {/* Section 2 Top Pairs Wins */}
           <div id="section2" className="section">
             <h3>Top {topN} Pairs with Most Wins</h3>
-            <ul>
-              {data.topPairsWins?.map((item, i) => (
-                <li key={i}>{item.pair}: {item.wins} wins</li>
-              ))}
-            </ul>
+            {data.topPairsWins && data.topPairsWins.length > 0 ? (
+              <ul>
+                {data.topPairsWins.map((item, i) => (
+                  <li key={i}>{item.pair}: {item.wins} wins</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="no-data">No data available for this period</p>
+            )}
           </div>
 
           {/* Section 3 Top Strategies Wins */}
           <div id="section3" className="section">
             <h3>Top {topN} Strategies with Most Wins</h3>
-            <ul>
-              {data.topStrategiesWins?.map((item, i) => (
-                <li key={i}>{item.strategy}: {item.wins} wins</li>
-              ))}
-            </ul>
+            {data.topStrategiesWins && data.topStrategiesWins.length > 0 ? (
+              <ul>
+                {data.topStrategiesWins.map((item, i) => (
+                  <li key={i}>{item.strategy}: {item.wins} wins</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="no-data">No data available for this period</p>
+            )}
           </div>
 
           {/* Section 4 Top Pairs Losses */}
           <div id="section4" className="section">
             <h3>Top {topN} Pairs with Most Losses</h3>
-            <ul>
-              {data.topPairsLosses?.map((item, i) => (
-                <li key={i}>{item.pair}: {item.losses} losses</li>
-              ))}
-            </ul>
+            {data.topPairsLosses && data.topPairsLosses.length > 0 ? (
+              <ul>
+                {data.topPairsLosses.map((item, i) => (
+                  <li key={i}>{item.pair}: {item.losses} losses</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="no-data">No data available for this period</p>
+            )}
           </div>
 
           {/* Section 5 Top Strategies Losses */}
           <div id="section5" className="section">
             <h3>Top {topN} Strategies with Most Losses</h3>
-            <ul>
-              {data.topStrategiesLosses?.map((item, i) => (
-                <li key={i}>{item.strategy}: {item.losses} losses</li>
-              ))}
-            </ul>
+            {data.topStrategiesLosses && data.topStrategiesLosses.length > 0 ? (
+              <ul>
+                {data.topStrategiesLosses.map((item, i) => (
+                  <li key={i}>{item.strategy}: {item.losses} losses</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="no-data">No data available for this period</p>
+            )}
           </div>
 
           {/* Section 6 Consecutive Wins/Losses */}
@@ -262,19 +249,27 @@ const Overview = () => {
             <h3>Consecutive Performance</h3>
             <div>
               <h4>3 Consecutive Wins (Hot Setups)</h4>
-              <ul>
-                {data.consecutiveWins?.map((setup, i) => (
-                  <li key={i}>{setup.pair} + {setup.strategy}</li>
-                ))}
-              </ul>
+              {data.consecutiveWins && data.consecutiveWins.length > 0 ? (
+                <ul>
+                  {data.consecutiveWins.map((setup, i) => (
+                    <li key={i}>{setup.pair} + {setup.strategy}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="no-data">No hot setups with 3 consecutive wins</p>
+              )}
             </div>
             <div>
               <h4>3 Consecutive Losses (Failed Setups) – Flagged</h4>
-              <ul>
-                {data.consecutiveLosses?.map((setup, i) => (
-                  <li key={i}>{setup.pair} + {setup.strategy} (Flagged as failed)</li>
-                ))}
-              </ul>
+              {data.consecutiveLosses && data.consecutiveLosses.length > 0 ? (
+                <ul>
+                  {data.consecutiveLosses.map((setup, i) => (
+                    <li key={i}>{setup.pair} + {setup.strategy} (Flagged as failed)</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="no-data">No failed setups with 3 consecutive losses</p>
+              )}
             </div>
           </div>
 
@@ -282,10 +277,10 @@ const Overview = () => {
           <div id="section7a" className="section">
             <h3>Most Wins by Time Period</h3>
             <ul>
-              <li>Year: {data.mostWinsYear?.value} ({data.mostWinsYear?.wins} wins)</li>
-              <li>Month: {data.mostWinsMonth?.value} ({data.mostWinsMonth?.wins} wins)</li>
-              <li>Week: {data.mostWinsWeek?.value} ({data.mostWinsWeek?.wins} wins)</li>
-              <li>Day: {data.mostWinsDay?.value} ({data.mostWinsDay?.wins} wins)</li>
+              <li>Year: {data.mostWinsYear?.value ?? 'N/A'} ({data.mostWinsYear?.wins ?? 0} wins)</li>
+              <li>Month: {data.mostWinsMonth?.value ?? 'N/A'} ({data.mostWinsMonth?.wins ?? 0} wins)</li>
+              <li>Week: {data.mostWinsWeek?.value ?? 'N/A'} ({data.mostWinsWeek?.wins ?? 0} wins)</li>
+              <li>Day: {data.mostWinsDay?.value ?? 'N/A'} ({data.mostWinsDay?.wins ?? 0} wins)</li>
             </ul>
           </div>
 
@@ -293,43 +288,59 @@ const Overview = () => {
           <div id="section7b" className="section">
             <h3>Most Losses by Time Period</h3>
             <ul>
-              <li>Year: {data.mostLossesYear?.value} ({data.mostLossesYear?.losses} losses)</li>
-              <li>Month: {data.mostLossesMonth?.value} ({data.mostLossesMonth?.losses} losses)</li>
-              <li>Week: {data.mostLossesWeek?.value} ({data.mostLossesWeek?.losses} losses)</li>
-              <li>Day: {data.mostLossesDay?.value} ({data.mostLossesDay?.losses} losses)</li>
+              <li>Year: {data.mostLossesYear?.value ?? 'N/A'} ({data.mostLossesYear?.losses ?? 0} losses)</li>
+              <li>Month: {data.mostLossesMonth?.value ?? 'N/A'} ({data.mostLossesMonth?.losses ?? 0} losses)</li>
+              <li>Week: {data.mostLossesWeek?.value ?? 'N/A'} ({data.mostLossesWeek?.losses ?? 0} losses)</li>
+              <li>Day: {data.mostLossesDay?.value ?? 'N/A'} ({data.mostLossesDay?.losses ?? 0} losses)</li>
             </ul>
           </div>
 
           {/* Section 8 Most/Least Traded Pairs */}
           <div id="section8" className="section">
             <h3>Top {topN} Most Traded Pairs</h3>
-            <ul>
-              {data.mostTradedPairs?.map((item, i) => (
-                <li key={i}>{item.pair}: {item.count} trades</li>
-              ))}
-            </ul>
+            {data.mostTradedPairs && data.mostTradedPairs.length > 0 ? (
+              <ul>
+                {data.mostTradedPairs.map((item, i) => (
+                  <li key={i}>{item.pair}: {item.count} trades</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="no-data">No data available</p>
+            )}
             <h3>Top {topN} Least Traded Pairs</h3>
-            <ul>
-              {data.leastTradedPairs?.map((item, i) => (
-                <li key={i}>{item.pair}: {item.count} trades</li>
-              ))}
-            </ul>
+            {data.leastTradedPairs && data.leastTradedPairs.length > 0 ? (
+              <ul>
+                {data.leastTradedPairs.map((item, i) => (
+                  <li key={i}>{item.pair}: {item.count} trades</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="no-data">No data available</p>
+            )}
           </div>
 
           {/* Section 9 Most/Least Traded Strategies */}
           <div id="section9" className="section">
             <h3>Top {topN} Most Traded Strategies</h3>
-            <ul>
-              {data.mostTradedStrategies?.map((item, i) => (
-                <li key={i}>{item.strategy}: {item.count} trades</li>
-              ))}
-            </ul>
+            {data.mostTradedStrategies && data.mostTradedStrategies.length > 0 ? (
+              <ul>
+                {data.mostTradedStrategies.map((item, i) => (
+                  <li key={i}>{item.strategy}: {item.count} trades</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="no-data">No data available</p>
+            )}
             <h3>Top {topN} Least Traded Strategies</h3>
-            <ul>
-              {data.leastTradedStrategies?.map((item, i) => (
-                <li key={i}>{item.strategy}: {item.count} trades</li>
-              ))}
-            </ul>
+            {data.leastTradedStrategies && data.leastTradedStrategies.length > 0 ? (
+              <ul>
+                {data.leastTradedStrategies.map((item, i) => (
+                  <li key={i}>{item.strategy}: {item.count} trades</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="no-data">No data available</p>
+            )}
           </div>
 
           {/* Section 10 Tabular Summary */}
@@ -351,11 +362,11 @@ const Overview = () => {
         </>
       )}
 
-      {/* PDF Download Section */}
+      {/* PDF Download Section – removed section1b from the list */}
       <div className="pdf-download-section">
         <h3>Download PDF</h3>
         <div className="section-checkboxes">
-          {['section1a','section1b','section2','section3','section4','section5','section6','section7a','section7b','section8','section9','section10'].map((id) => (
+          {['section1a','section2','section3','section4','section5','section6','section7a','section7b','section8','section9','section10'].map((id) => (
             <label key={id}>
               <input
                 type="checkbox"

@@ -133,3 +133,11 @@ button {
 button:hover {
   background: #3aa8d8;
 }
+
+/* "No data" message styling */
+.no-data {
+  color: #888;
+  font-style: italic;
+  padding: 12px 0;
+  font-size: 0.95rem;
+}
