@@ -34,7 +34,7 @@ const Header = () => {
     <header className="header">
       <div className="header-left">
         <Link to="/" className="journal-name">
-          BIRDSTRIKEFX JOURNAL
+          BIRDSTRIKEFX
         </Link>
       </div>
 
