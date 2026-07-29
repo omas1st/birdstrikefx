@@ -35,8 +35,9 @@ const TradesData = () => {
   const [outcomeFilter, setOutcomeFilter] = useState('');
   const [pairFilter, setPairFilter] = useState('');
   const [strategyFilter, setStrategyFilter] = useState('');
-  const [sortBy, setSortBy] = useState('');
-  const [sortOrder, setSortOrder] = useState('asc');
+  // Default sort: date descending (latest first)
+  const [sortBy, setSortBy] = useState('date');
+  const [sortOrder, setSortOrder] = useState('desc');
 
   const getDateRangeForFilter = useCallback(() => {
     const today = new Date();
