@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { getTrades, deleteTrade } from '../services/api';
+import { getTrades, updateTrade, deleteTrade } from '../services/api';
 import { PAIRS, STRATEGIES } from '../utils/constants';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -37,6 +37,18 @@ const TradesData = () => {
   const [strategyFilter, setStrategyFilter] = useState('');
   const [sortBy, setSortBy] = useState('date');
   const [sortOrder, setSortOrder] = useState('desc');
+
+  // Edit modal state
+  const [editingTrade, setEditingTrade] = useState(null); // trade object being edited
+  const [showModal, setShowModal] = useState(false);
+  const [editForm, setEditForm] = useState({
+    date: '',
+    pair: '',
+    strategy: '',
+    outcome: '',
+    reason: '',
+    entered: true,
+  });
 
   const getDateRangeForFilter = useCallback(() => {
     const today = new Date();
@@ -139,6 +151,56 @@ const TradesData = () => {
     } catch (err) {
       console.error('Delete failed', err);
       alert('Failed to delete trade');
+    }
+  };
+
+  // Open edit modal with pre-filled data
+  const handleEditClick = (trade) => {
+    setEditingTrade(trade);
+    setEditForm({
+      date: trade.date ? new Date(trade.date).toISOString().slice(0, 10) : '',
+      pair: trade.pair,
+      strategy: trade.strategy,
+      outcome: trade.outcome,
+      reason: trade.reason || 'A+ setup',
+      entered: trade.entered,
+    });
+    setShowModal(true);
+  };
+
+  // Close modal
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setEditingTrade(null);
+  };
+
+  // Handle edit form field changes
+  const handleEditFormChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setEditForm((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
+  };
+
+  // Submit edited trade
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    if (!editingTrade) return;
+    try {
+      await updateTrade(editingTrade._id, {
+        date: editForm.date,
+        pair: editForm.pair,
+        strategy: editForm.strategy,
+        outcome: editForm.outcome,
+        reason: editForm.reason,
+        entered: editForm.entered,
+      });
+      handleCloseModal();
+      fetchTrades();
+    } catch (err) {
+      console.error('Update failed', err);
+      alert('Failed to update trade');
     }
   };
 
@@ -263,6 +325,12 @@ const TradesData = () => {
                   <td>{trade.entered ? 'Yes' : 'No'}</td>
                   <td>
                     <button
+                      className="edit-trade-btn"
+                      onClick={() => handleEditClick(trade)}
+                    >
+                      ✏️ Edit
+                    </button>
+                    <button
                       className="delete-trade-btn"
                       onClick={() => handleDeleteTrade(trade._id)}
                     >
@@ -273,6 +341,57 @@ const TradesData = () => {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {showModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Edit Trade</h3>
+            <form onSubmit={handleEditSubmit}>
+              <div className="form-group">
+                <label>Date</label>
+                <input type="date" name="date" value={editForm.date} onChange={handleEditFormChange} required />
+              </div>
+              <div className="form-group">
+                <label>Pair</label>
+                <select name="pair" value={editForm.pair} onChange={handleEditFormChange} required>
+                  <option value="">Select Pair</option>
+                  {PAIRS.map((p) => <option key={p} value={p}>{p}</option>)}
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Strategy</label>
+                <select name="strategy" value={editForm.strategy} onChange={handleEditFormChange} required>
+                  <option value="">Select Strategy</option>
+                  {STRATEGIES.map((s) => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Outcome</label>
+                <select name="outcome" value={editForm.outcome} onChange={handleEditFormChange} required>
+                  <option value="">Select Outcome</option>
+                  <option value="win">Win</option>
+                  <option value="loss">Loss</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Reason</label>
+                <input type="text" name="reason" value={editForm.reason} onChange={handleEditFormChange} />
+              </div>
+              <div className="form-group">
+                <label>
+                  <input type="checkbox" name="entered" checked={editForm.entered} onChange={handleEditFormChange} />
+                  Entered live
+                </label>
+              </div>
+              <div className="modal-actions">
+                <button type="submit" className="save-btn">Save Changes</button>
+                <button type="button" className="cancel-btn" onClick={handleCloseModal}>Cancel</button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

@@ -12,6 +12,7 @@ export const deleteSetup = (id) => API.delete(`/setups/${id}`);
 // ---- Trades ----
 export const recordTrade = (data) => API.post('/trades', data);
 export const getTrades = (params) => API.get('/trades', { params });
+export const updateTrade = (id, data) => API.put(`/trades/${id}`, data);   // <-- new
 export const deleteTrade = (id) => API.delete(`/trades/${id}`);
 
 // ---- Overview ----

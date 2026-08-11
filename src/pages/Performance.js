@@ -239,32 +239,43 @@ const Performance = () => {
     );
   };
 
-  // Chart data
+  // Chart data – aggregates per day with both all and entered cumulative values
   const chartData = useMemo(() => {
     const dayMap = new Map();
     currentPeriodTrades.forEach(trade => {
       const dayKey = new Date(trade.date).toLocaleDateString();
       if (!dayMap.has(dayKey)) {
-        dayMap.set(dayKey, { date: dayKey, trades: [], dailyNet: 0 });
+        dayMap.set(dayKey, { date: dayKey, trades: [], dailyNet: 0, enteredDailyNet: 0 });
       }
       const entry = dayMap.get(dayKey);
       entry.trades.push(trade);
-      entry.dailyNet += trade.outcome === 'win' ? riskReward : -1;
+      // All trades daily net
+      const amount = trade.outcome === 'win' ? riskReward : -1;
+      entry.dailyNet += amount;
+      // Entered trades daily net
+      if (trade.entered) {
+        entry.enteredDailyNet += amount;
+      }
     });
     const sortedDays = Array.from(dayMap.values()).sort((a, b) => new Date(a.date) - new Date(b.date));
-    let cum = 0;
+    let cumAll = 0;
+    let cumEntered = 0;
     return sortedDays.map(day => {
-      cum += day.dailyNet;
+      cumAll += day.dailyNet;
+      cumEntered += day.enteredDailyNet;
       return {
         date: day.date,
         dailyNet: day.dailyNet,
-        cumulativeNet: cum,
+        cumulativeNet: cumAll,
+        enteredDailyNet: day.enteredDailyNet,
+        enteredCumulativeNet: cumEntered,
         trades: day.trades,
       };
     });
   }, [currentPeriodTrades, riskReward]);
 
-  const CustomDot = (props) => {
+  // Custom dot for all-trades line (coloured by daily net)
+  const CustomDotAll = (props) => {
     const { cx, cy, payload } = props;
     if (!cx || !cy) return null;
     const dailyNet = payload.dailyNet;
@@ -274,6 +285,18 @@ const Performance = () => {
     return <circle cx={cx} cy={cy} r={5} fill={fill} stroke="#000" strokeWidth={1} />;
   };
 
+  // Custom dot for entered-trades line (coloured by entered daily net)
+  const CustomDotEntered = (props) => {
+    const { cx, cy, payload } = props;
+    if (!cx || !cy) return null;
+    const enteredDailyNet = payload.enteredDailyNet;
+    let fill = '#ffffff';
+    if (enteredDailyNet > 0) fill = '#66bb6a';
+    else if (enteredDailyNet < 0) fill = '#ef5350';
+    return <circle cx={cx} cy={cy} r={5} fill={fill} stroke="#000" strokeWidth={1} />;
+  };
+
+  // Tooltip (unchanged – shows all trades for that day)
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
@@ -283,8 +306,10 @@ const Performance = () => {
       return (
         <div className="custom-tooltip">
           <p><strong>Date:</strong> {data.date}</p>
-          <p>Daily Net: <span style={{ color: dayNet >= 0 ? '#4fc3f7' : '#ff5252' }}>{dayNet > 0 ? '+' : ''}{dayNet.toFixed(2)} R</span> ({outcomeText})</p>
-          <p>Cumulative: {data.cumulativeNet.toFixed(2)} R</p>
+          <p>All trades daily net: <span style={{ color: dayNet >= 0 ? '#4fc3f7' : '#ff5252' }}>{dayNet > 0 ? '+' : ''}{dayNet.toFixed(2)} R</span> ({outcomeText})</p>
+          <p>All trades cumulative: {data.cumulativeNet.toFixed(2)} R</p>
+          <p>Entered daily net: <span style={{ color: data.enteredDailyNet >= 0 ? '#4fc3f7' : '#ff5252' }}>{data.enteredDailyNet > 0 ? '+' : ''}{data.enteredDailyNet.toFixed(2)} R</span></p>
+          <p>Entered cumulative: {data.enteredCumulativeNet.toFixed(2)} R</p>
           <div className="tooltip-trades">
             {data.trades.map((trade, idx) => (
               <div key={idx} className="tooltip-trade-item">
@@ -399,7 +424,6 @@ const Performance = () => {
               <td>{previousStats ? formatChange(currentStats.enteredLossRate, previousStats.enteredLossRate) : 'N/A'}</td>
             </tr>
 
-            {/* Cumulative rows with change */}
             <tr style={{ borderTop: '2px solid #4fc3f7' }}>
               <td><strong>Cumulative P&L (All)</strong></td>
               <td>{cumulativeAll.toFixed(2)} R</td>
@@ -452,8 +476,16 @@ const Performance = () => {
                 type="monotone"
                 dataKey="cumulativeNet"
                 stroke="#4fc3f7"
-                name="Cumulative P/L (R)"
-                dot={<CustomDot />}
+                name="All Trades"
+                dot={<CustomDotAll />}
+                activeDot={{ r: 6, stroke: '#fff', strokeWidth: 2 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="enteredCumulativeNet"
+                stroke="#66bb6a"
+                name="Entered Trades"
+                dot={<CustomDotEntered />}
                 activeDot={{ r: 6, stroke: '#fff', strokeWidth: 2 }}
               />
             </LineChart>
