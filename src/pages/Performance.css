@@ -1,0 +1,104 @@
+.performance-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.performance-container h2 {
+  color: #4fc3f7;
+  margin-bottom: 24px;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  background: #1a1a2e;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.filters label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #aaa;
+  font-size: 0.9rem;
+}
+
+.filters select,
+.filters input {
+  background: #0f0f1f;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #eee;
+}
+
+.stats-table {
+  margin-bottom: 32px;
+  overflow-x: auto;
+}
+
+.stats-table table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+.stats-table th,
+.stats-table td {
+  padding: 12px;
+  border-bottom: 1px solid #2d2d44;
+  text-align: left;
+}
+
+.stats-table th {
+  background: #252540;
+  color: #4fc3f7;
+}
+
+.stats-table td {
+  color: #ccc;
+}
+
+.chart-section {
+  background: #1a1a2e;
+  padding: 24px;
+  border-radius: 12px;
+  margin-top: 24px;
+}
+
+.chart-section h3 {
+  color: #ddd;
+  margin-bottom: 16px;
+}
+
+/* Tooltip styles */
+.custom-tooltip {
+  background: #1e1e2f;
+  border: 1px solid #444;
+  padding: 12px;
+  border-radius: 8px;
+  color: #eee;
+  max-width: 300px;
+}
+
+.tooltip-trades {
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 8px;
+}
+
+.tooltip-trade-item {
+  font-size: 0.85rem;
+  border-bottom: 1px solid #333;
+  padding-bottom: 4px;
+  margin-bottom: 4px;
+}
+
+.tooltip-trade-item:last-child {
+  border-bottom: none;
+}

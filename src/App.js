@@ -8,6 +8,7 @@ import RecordTrade from './pages/RecordTrade';
 import Overview from './pages/Overview';
 import TradesData from './pages/TradesData';
 import FinalAnalysis from './pages/FinalAnalysis';
+import Performance from './pages/Performance';
 import './App.css';
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
               <Route path="/overview" element={<Overview />} />
               <Route path="/trades-data" element={<TradesData />} />
               <Route path="/final-analysis" element={<FinalAnalysis />} />
+              <Route path="/performance" element={<Performance />} />
             </Routes>
           </main>
         </div>

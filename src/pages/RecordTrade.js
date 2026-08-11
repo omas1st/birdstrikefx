@@ -8,6 +8,8 @@ const RecordTrade = () => {
   const [strategy, setStrategy] = useState('');
   const [outcome, setOutcome] = useState('');
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [reason, setReason] = useState('A+ setup');
+  const [entered, setEntered] = useState(true);
   const [message, setMessage] = useState('');
 
   useEffect(() => {
@@ -40,12 +42,21 @@ const RecordTrade = () => {
       return;
     }
     try {
-      await recordTrade({ date, pair, strategy, outcome });
+      await recordTrade({
+        date,
+        pair,
+        strategy,
+        outcome,
+        reason: reason.trim() || 'A+ setup',
+        entered,
+      });
       setMessage('Trade successfully recorded');
       setPair('');
       setStrategy('');
       setOutcome('');
       setDate(new Date().toISOString().slice(0, 10));
+      setReason('A+ setup');
+      setEntered(true);
     } catch (err) {
       setMessage('Error recording trade');
     }
@@ -78,6 +89,22 @@ const RecordTrade = () => {
             <option value="">Select Outcome</option>
             <option value="win">Win</option>
             <option value="loss">Loss</option>
+          </select>
+        </div>
+        <div className="form-group">
+          <label>Reason</label>
+          <input
+            type="text"
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            placeholder="A+ setup"
+          />
+        </div>
+        <div className="form-group">
+          <label>Did you enter this trade?</label>
+          <select value={entered} onChange={(e) => setEntered(e.target.value === 'true')}>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
           </select>
         </div>
         <button type="submit" className="submit-btn">Record Trade</button>

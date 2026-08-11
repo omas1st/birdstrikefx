@@ -35,7 +35,6 @@ const TradesData = () => {
   const [outcomeFilter, setOutcomeFilter] = useState('');
   const [pairFilter, setPairFilter] = useState('');
   const [strategyFilter, setStrategyFilter] = useState('');
-  // Default sort: date descending (latest first)
   const [sortBy, setSortBy] = useState('date');
   const [sortOrder, setSortOrder] = useState('desc');
 
@@ -136,7 +135,7 @@ const TradesData = () => {
     if (!window.confirm('Are you sure you want to delete this trade?')) return;
     try {
       await deleteTrade(id);
-      fetchTrades(); // Refresh the list and stats
+      fetchTrades();
     } catch (err) {
       console.error('Delete failed', err);
       alert('Failed to delete trade');
@@ -248,6 +247,8 @@ const TradesData = () => {
                 <th>Pair</th>
                 <th>Strategy</th>
                 <th>Outcome</th>
+                <th>Reason</th>
+                <th>Entered</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -258,6 +259,8 @@ const TradesData = () => {
                   <td>{trade.pair}</td>
                   <td>{trade.strategy}</td>
                   <td>{trade.outcome}</td>
+                  <td>{trade.reason || 'A+ setup'}</td>
+                  <td>{trade.entered ? 'Yes' : 'No'}</td>
                   <td>
                     <button
                       className="delete-trade-btn"

@@ -23,6 +23,9 @@ const Home = () => {
         <button className="home-btn" onClick={() => navigate('/final-analysis')}>
           Final Analysis
         </button>
+        <button className="home-btn" onClick={() => navigate('/performance')}>
+          Performance
+        </button>
       </div>
     </div>
   );
