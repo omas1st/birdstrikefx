@@ -4,6 +4,7 @@ import './RecordTrade.css';
 
 const RecordTrade = () => {
   const [setups, setSetups] = useState([]);
+  const [selectedSetup, setSelectedSetup] = useState(''); // stores the setup ID
   const [pair, setPair] = useState('');
   const [strategy, setStrategy] = useState('');
   const [outcome, setOutcome] = useState('');
@@ -20,24 +21,26 @@ const RecordTrade = () => {
     fetchSetups();
   }, []);
 
-  const uniquePairs = [...new Set(setups.map((s) => s.pair))];
+  // Handle setup selection: auto-fill pair and strategy
+  const handleSetupChange = (e) => {
+    const setupId = e.target.value;
+    setSelectedSetup(setupId);
 
-  const handlePairChange = (e) => {
-    const selectedPair = e.target.value;
-    setPair(selectedPair);
-    if (selectedPair) {
-      const strategiesForPair = setups
-        .filter((s) => s.pair === selectedPair)
-        .map((s) => s.strategy);
-      setStrategy(strategiesForPair[0] || '');
+    if (setupId) {
+      const setup = setups.find((s) => s._id === setupId);
+      if (setup) {
+        setPair(setup.pair);
+        setStrategy(setup.strategy);
+      }
     } else {
+      setPair('');
       setStrategy('');
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!date || !pair || !strategy || !outcome) {
+    if (!date || !selectedSetup || !pair || !strategy || !outcome) {
       setMessage('All fields are required');
       return;
     }
@@ -51,6 +54,8 @@ const RecordTrade = () => {
         entered,
       });
       setMessage('Trade successfully recorded');
+      // Reset all fields
+      setSelectedSetup('');
       setPair('');
       setStrategy('');
       setOutcome('');
@@ -70,19 +75,30 @@ const RecordTrade = () => {
           <label>Date</label>
           <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
         </div>
+
+        {/* New: Setup dropdown */}
         <div className="form-group">
-          <label>Pair</label>
-          <select value={pair} onChange={handlePairChange}>
-            <option value="">Select Pair</option>
-            {uniquePairs.map((p) => (
-              <option key={p} value={p}>{p}</option>
+          <label>Setup</label>
+          <select value={selectedSetup} onChange={handleSetupChange}>
+            <option value="">Select Setup</option>
+            {setups.map((setup) => (
+              <option key={setup._id} value={setup._id}>
+                {setup.pair} - {setup.strategy}
+              </option>
             ))}
           </select>
         </div>
+
+        {/* Pair and Strategy are auto-filled and read-only */}
+        <div className="form-group">
+          <label>Pair</label>
+          <input type="text" value={pair} readOnly className="auto-strategy" placeholder="Auto-filled from setup" />
+        </div>
         <div className="form-group">
           <label>Strategy</label>
-          <input type="text" value={strategy} readOnly className="auto-strategy" />
+          <input type="text" value={strategy} readOnly className="auto-strategy" placeholder="Auto-filled from setup" />
         </div>
+
         <div className="form-group">
           <label>Outcome/Result</label>
           <select value={outcome} onChange={(e) => setOutcome(e.target.value)}>
