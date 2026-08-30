@@ -26,6 +26,9 @@ const Home = () => {
         <button className="home-btn" onClick={() => navigate('/performance')}>
           Performance
         </button>
+        <button className="home-btn" onClick={() => navigate('/performance-calendar')}>
+          Calendar
+        </button>
       </div>
     </div>
   );
