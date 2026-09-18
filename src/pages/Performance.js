@@ -45,7 +45,10 @@ const Performance = () => {
   const [customEnd, setCustomEnd] = useState('');
   const [riskReward, setRiskReward] = useState(2);
 
-  // Build date filter for API
+  // Tab state
+  const [activeTab, setActiveTab] = useState('table');
+
+  // Build date filter
   const buildDateFilter = useCallback((range, startCustom, endCustom) => {
     const today = new Date();
     let start, end;
@@ -108,7 +111,6 @@ const Performance = () => {
     };
   }, []);
 
-  // Fetch trades for a given date range
   const fetchPeriodTrades = useCallback(async (range, startCustom, endCustom) => {
     const { startDate, endDate } = buildDateFilter(range, startCustom, endCustom);
     const params = {
@@ -122,7 +124,6 @@ const Performance = () => {
     return res.data.trades;
   }, [buildDateFilter]);
 
-  // Load current and previous periods
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
@@ -153,7 +154,6 @@ const Performance = () => {
     loadData();
   }, [selectedRange, customStart, customEnd, fetchPeriodTrades, buildDateFilter]);
 
-  // Basic stats
   const computeStats = useCallback((trades) => {
     const total = trades.length;
     const wins = trades.filter(t => t.outcome === 'win').length;
@@ -165,6 +165,7 @@ const Performance = () => {
     const enteredLosses = enteredTrades.filter(t => t.outcome === 'loss').length;
     const enteredWinRate = enteredTrades.length ? ((enteredWins / enteredTrades.length) * 100).toFixed(2) : '0.00';
     const enteredLossRate = enteredTrades.length ? ((enteredLosses / enteredTrades.length) * 100).toFixed(2) : '0.00';
+    const executionRate = total ? ((enteredTrades.length / total) * 100).toFixed(2) : '0.00';
     return {
       total,
       wins,
@@ -176,6 +177,7 @@ const Performance = () => {
       enteredLosses,
       enteredWinRate,
       enteredLossRate,
+      executionRate,
     };
   }, []);
 
@@ -185,30 +187,22 @@ const Performance = () => {
     return computeStats(previousPeriodTrades);
   }, [previousPeriodTrades, computeStats]);
 
-  // Cumulative P&L for current period
   const cumulativeAll = useMemo(() => {
-    return currentPeriodTrades.reduce((sum, trade) => {
-      return sum + (trade.outcome === 'win' ? riskReward : -1);
-    }, 0);
+    return currentPeriodTrades.reduce((sum, trade) => sum + (trade.outcome === 'win' ? riskReward : -1), 0);
   }, [currentPeriodTrades, riskReward]);
 
   const cumulativeEntered = useMemo(() => {
     return currentPeriodTrades.reduce((sum, trade) => {
-      if (trade.entered) {
-        return sum + (trade.outcome === 'win' ? riskReward : -1);
-      }
+      if (trade.entered) return sum + (trade.outcome === 'win' ? riskReward : -1);
       return sum;
     }, 0);
   }, [currentPeriodTrades, riskReward]);
 
   const gap = cumulativeAll - cumulativeEntered;
 
-  // Cumulative P&L for previous period
   const previousCumulativeAll = useMemo(() => {
     if (!previousPeriodTrades.length) return null;
-    return previousPeriodTrades.reduce((sum, trade) => {
-      return sum + (trade.outcome === 'win' ? riskReward : -1);
-    }, 0);
+    return previousPeriodTrades.reduce((sum, trade) => sum + (trade.outcome === 'win' ? riskReward : -1), 0);
   }, [previousPeriodTrades, riskReward]);
 
   const previousCumulativeEntered = useMemo(() => {
@@ -223,7 +217,6 @@ const Performance = () => {
     ? previousCumulativeAll - previousCumulativeEntered
     : null;
 
-  // Percentage change helper
   const formatChange = (currentVal, previousVal) => {
     if (previousVal === null || previousVal === undefined || previousVal === 0) return 'N/A';
     const curr = parseFloat(currentVal);
@@ -232,14 +225,9 @@ const Performance = () => {
     const pct = ((diff / Math.abs(prev)) * 100).toFixed(1);
     const sign = diff > 0 ? '↑' : diff < 0 ? '↓' : '→';
     const color = diff > 0 ? '#4caf50' : diff < 0 ? '#f44336' : '#ffffff';
-    return (
-      <span style={{ color }}>
-        {sign} {Math.abs(pct)}%
-      </span>
-    );
+    return <span style={{ color }}>{sign} {Math.abs(pct)}%</span>;
   };
 
-  // Chart data – aggregates per day with both all and entered cumulative values
   const chartData = useMemo(() => {
     const dayMap = new Map();
     currentPeriodTrades.forEach(trade => {
@@ -249,13 +237,9 @@ const Performance = () => {
       }
       const entry = dayMap.get(dayKey);
       entry.trades.push(trade);
-      // All trades daily net
       const amount = trade.outcome === 'win' ? riskReward : -1;
       entry.dailyNet += amount;
-      // Entered trades daily net
-      if (trade.entered) {
-        entry.enteredDailyNet += amount;
-      }
+      if (trade.entered) entry.enteredDailyNet += amount;
     });
     const sortedDays = Array.from(dayMap.values()).sort((a, b) => new Date(a.date) - new Date(b.date));
     let cumAll = 0;
@@ -274,7 +258,6 @@ const Performance = () => {
     });
   }, [currentPeriodTrades, riskReward]);
 
-  // Custom dot for all-trades line (coloured by daily net)
   const CustomDotAll = (props) => {
     const { cx, cy, payload } = props;
     if (!cx || !cy) return null;
@@ -285,7 +268,6 @@ const Performance = () => {
     return <circle cx={cx} cy={cy} r={5} fill={fill} stroke="#000" strokeWidth={1} />;
   };
 
-  // Custom dot for entered-trades line (coloured by entered daily net)
   const CustomDotEntered = (props) => {
     const { cx, cy, payload } = props;
     if (!cx || !cy) return null;
@@ -296,7 +278,6 @@ const Performance = () => {
     return <circle cx={cx} cy={cy} r={5} fill={fill} stroke="#000" strokeWidth={1} />;
   };
 
-  // Tooltip (unchanged – shows all trades for that day)
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
@@ -329,10 +310,29 @@ const Performance = () => {
 
   return (
     <div className="performance-container">
-      <h2>Performance Analysis</h2>
+      <div className="performance-header">
+        <h2>Performance Analysis</h2>
+      </div>
 
-      <div className="filters">
-        <label>Time Range:
+      {/* Tabs at top, centred */}
+      <div className="performance-tabs">
+        <button
+          className={`tab-btn ${activeTab === 'table' ? 'active' : ''}`}
+          onClick={() => setActiveTab('table')}
+        >
+          Table
+        </button>
+        <button
+          className={`tab-btn ${activeTab === 'chart' ? 'active' : ''}`}
+          onClick={() => setActiveTab('chart')}
+        >
+          Chart
+        </button>
+      </div>
+
+      {/* Compact filters */}
+      <div className="filters compact">
+        <label>Range:
           <select value={selectedRange} onChange={(e) => {
             setSelectedRange(e.target.value);
             if (e.target.value !== 'custom') { setCustomStart(''); setCustomEnd(''); }
@@ -342,156 +342,137 @@ const Performance = () => {
         </label>
         {selectedRange === 'custom' && (
           <>
-            <label>Start: <input type="date" value={customStart} onChange={(e) => setCustomStart(e.target.value)} /></label>
-            <label>End: <input type="date" value={customEnd} onChange={(e) => setCustomEnd(e.target.value)} /></label>
+            <label>From: <input type="date" value={customStart} onChange={(e) => setCustomStart(e.target.value)} /></label>
+            <label>To: <input type="date" value={customEnd} onChange={(e) => setCustomEnd(e.target.value)} /></label>
           </>
         )}
-        <label>Risk-Reward Ratio:
+        <label>RR:
           <select value={riskReward} onChange={(e) => setRiskReward(Number(e.target.value))}>
             {ratioOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
           </select>
         </label>
       </div>
 
-      <div className="stats-table">
-        <table>
-          <thead>
-            <tr>
-              <th>Metric</th>
-              <th>Value</th>
-              <th>Change vs Previous</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Total Trades</td>
-              <td>{currentStats.total}</td>
-              <td>{previousStats ? formatChange(currentStats.total, previousStats.total) : 'N/A'}</td>
-            </tr>
-            <tr>
-              <td>Wins (All)</td>
-              <td>{currentStats.wins}</td>
-              <td>{previousStats ? formatChange(currentStats.wins, previousStats.wins) : 'N/A'}</td>
-            </tr>
-            <tr>
-              <td>Losses (All)</td>
-              <td>{currentStats.losses}</td>
-              <td>{previousStats ? formatChange(currentStats.losses, previousStats.losses) : 'N/A'}</td>
-            </tr>
-            <tr>
-              <td>Win Rate (All)</td>
-              <td>{currentStats.winRate}%</td>
-              <td>{previousStats ? formatChange(currentStats.winRate, previousStats.winRate) : 'N/A'}</td>
-            </tr>
-            <tr>
-              <td>Loss Rate (All)</td>
-              <td>{currentStats.lossRate}%</td>
-              <td>{previousStats ? formatChange(currentStats.lossRate, previousStats.lossRate) : 'N/A'}</td>
-            </tr>
-            <tr>
-              <td>
-                <span style={{ color: '#4fc3f7' }}>Entered Trades</span>
-              </td>
-              <td>{currentStats.enteredTotal}</td>
-              <td>{previousStats ? formatChange(currentStats.enteredTotal, previousStats.enteredTotal) : 'N/A'}</td>
-            </tr>
-            <tr>
-              <td>
-                <span style={{ color: '#4fc3f7' }}>Wins (Entered)</span>
-              </td>
-              <td>{currentStats.enteredWins}</td>
-              <td>{previousStats ? formatChange(currentStats.enteredWins, previousStats.enteredWins) : 'N/A'}</td>
-            </tr>
-            <tr>
-              <td>
-                <span style={{ color: '#4fc3f7' }}>Losses (Entered)</span>
-              </td>
-              <td>{currentStats.enteredLosses}</td>
-              <td>{previousStats ? formatChange(currentStats.enteredLosses, previousStats.enteredLosses) : 'N/A'}</td>
-            </tr>
-            <tr>
-              <td>
-                <span style={{ color: '#4fc3f7' }}>Win Rate (Entered)</span>
-              </td>
-              <td>{currentStats.enteredWinRate}%</td>
-              <td>{previousStats ? formatChange(currentStats.enteredWinRate, previousStats.enteredWinRate) : 'N/A'}</td>
-            </tr>
-            <tr>
-              <td>
-                <span style={{ color: '#4fc3f7' }}>Loss Rate (Entered)</span>
-              </td>
-              <td>{currentStats.enteredLossRate}%</td>
-              <td>{previousStats ? formatChange(currentStats.enteredLossRate, previousStats.enteredLossRate) : 'N/A'}</td>
-            </tr>
+      {/* Content area (only this scrolls if needed) */}
+      <div className="performance-content">
+        {activeTab === 'table' && (
+          <div className="stats-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th>Value</th>
+                  <th>Change vs Previous</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Total Trades</td>
+                  <td>{currentStats.total}</td>
+                  <td>{previousStats ? formatChange(currentStats.total, previousStats.total) : 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td>Wins (All)</td>
+                  <td>{currentStats.wins}</td>
+                  <td>{previousStats ? formatChange(currentStats.wins, previousStats.wins) : 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td>Losses (All)</td>
+                  <td>{currentStats.losses}</td>
+                  <td>{previousStats ? formatChange(currentStats.losses, previousStats.losses) : 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td>Win Rate (All)</td>
+                  <td>{currentStats.winRate}%</td>
+                  <td>{previousStats ? formatChange(currentStats.winRate, previousStats.winRate) : 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td>Loss Rate (All)</td>
+                  <td>{currentStats.lossRate}%</td>
+                  <td>{previousStats ? formatChange(currentStats.lossRate, previousStats.lossRate) : 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td><span style={{ color: '#4fc3f7' }}>Entered Trades</span></td>
+                  <td>{currentStats.enteredTotal}</td>
+                  <td>{previousStats ? formatChange(currentStats.enteredTotal, previousStats.enteredTotal) : 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td><span style={{ color: '#4fc3f7' }}>Wins (Entered)</span></td>
+                  <td>{currentStats.enteredWins}</td>
+                  <td>{previousStats ? formatChange(currentStats.enteredWins, previousStats.enteredWins) : 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td><span style={{ color: '#4fc3f7' }}>Losses (Entered)</span></td>
+                  <td>{currentStats.enteredLosses}</td>
+                  <td>{previousStats ? formatChange(currentStats.enteredLosses, previousStats.enteredLosses) : 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td><span style={{ color: '#4fc3f7' }}>Win Rate (Entered)</span></td>
+                  <td>{currentStats.enteredWinRate}%</td>
+                  <td>{previousStats ? formatChange(currentStats.enteredWinRate, previousStats.enteredWinRate) : 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td><span style={{ color: '#4fc3f7' }}>Loss Rate (Entered)</span></td>
+                  <td>{currentStats.enteredLossRate}%</td>
+                  <td>{previousStats ? formatChange(currentStats.enteredLossRate, previousStats.enteredLossRate) : 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td><span style={{ color: '#ffa726' }}>Execution Rate</span></td>
+                  <td>{currentStats.executionRate}%</td>
+                  <td>{previousStats ? formatChange(currentStats.executionRate, previousStats.executionRate) : 'N/A'}</td>
+                </tr>
+                <tr style={{ borderTop: '2px solid #4fc3f7' }}>
+                  <td><strong>Cumulative P&L (All)</strong></td>
+                  <td>{cumulativeAll.toFixed(2)} R</td>
+                  <td>{previousCumulativeAll !== null ? formatChange(cumulativeAll, previousCumulativeAll) : 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td><strong>Cumulative P&L (Entered)</strong></td>
+                  <td>{cumulativeEntered.toFixed(2)} R</td>
+                  <td>{previousCumulativeEntered !== null ? formatChange(cumulativeEntered, previousCumulativeEntered) : 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td><strong>Gap (All – Entered)</strong></td>
+                  <td style={{ color: gap >= 0 ? '#4caf50' : '#f44336' }}>
+                    {gap > 0 ? '+' : ''}{gap.toFixed(2)} R
+                  </td>
+                  <td>
+                    {previousGap !== null
+                      ? (() => {
+                          const diff = gap - previousGap;
+                          const sign = diff > 0 ? '+' : diff < 0 ? '' : '';
+                          const color = diff > 0 ? '#4caf50' : diff < 0 ? '#f44336' : '#ffffff';
+                          return <span style={{ color }}>{sign}{diff.toFixed(2)} R</span>;
+                        })()
+                      : 'N/A'}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        )}
 
-            <tr style={{ borderTop: '2px solid #4fc3f7' }}>
-              <td><strong>Cumulative P&L (All)</strong></td>
-              <td>{cumulativeAll.toFixed(2)} R</td>
-              <td>
-                {previousCumulativeAll !== null
-                  ? formatChange(cumulativeAll, previousCumulativeAll)
-                  : 'N/A'}
-              </td>
-            </tr>
-            <tr>
-              <td><strong>Cumulative P&L (Entered)</strong></td>
-              <td>{cumulativeEntered.toFixed(2)} R</td>
-              <td>
-                {previousCumulativeEntered !== null
-                  ? formatChange(cumulativeEntered, previousCumulativeEntered)
-                  : 'N/A'}
-              </td>
-            </tr>
-            <tr>
-              <td><strong>Gap (All – Entered)</strong></td>
-              <td style={{ color: gap >= 0 ? '#4caf50' : '#f44336' }}>
-                {gap > 0 ? '+' : ''}{gap.toFixed(2)} R
-              </td>
-              <td>
-                {previousGap !== null
-                  ? (() => {
-                      const diff = gap - previousGap;
-                      const sign = diff > 0 ? '+' : diff < 0 ? '' : '';
-                      const color = diff > 0 ? '#4caf50' : diff < 0 ? '#f44336' : '#ffffff';
-                      return <span style={{ color }}>{sign}{diff.toFixed(2)} R</span>;
-                    })()
-                  : 'N/A'}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        {activeTab === 'chart' && (
+          loading ? <p>Loading...</p> : (
+            <div className="chart-section fullscreen-chart">
+              <h3>Profit/Loss Curve (Risk-Reward {riskReward}:1)</h3>
+              <div className="chart-wrapper">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#444" />
+                    <XAxis dataKey="date" stroke="#aaa" />
+                    <YAxis stroke="#aaa" label={{ value: 'Net R', angle: -90, position: 'insideLeft', style: { fill: '#aaa' } }} />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Legend />
+                    <Line type="monotone" dataKey="cumulativeNet" stroke="#4fc3f7" name="All Trades" dot={<CustomDotAll />} activeDot={{ r: 6, stroke: '#fff', strokeWidth: 2 }} />
+                    <Line type="monotone" dataKey="enteredCumulativeNet" stroke="#66bb6a" name="Entered Trades" dot={<CustomDotEntered />} activeDot={{ r: 6, stroke: '#fff', strokeWidth: 2 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )
+        )}
       </div>
-
-      {loading ? <p>Loading...</p> : (
-        <div className="chart-section">
-          <h3>Profit/Loss Curve (Risk-Reward {riskReward}:1)</h3>
-          <ResponsiveContainer width="100%" height={400}>
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-              <XAxis dataKey="date" stroke="#aaa" />
-              <YAxis stroke="#aaa" label={{ value: 'Net R', angle: -90, position: 'insideLeft', style: { fill: '#aaa' } }} />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="cumulativeNet"
-                stroke="#4fc3f7"
-                name="All Trades"
-                dot={<CustomDotAll />}
-                activeDot={{ r: 6, stroke: '#fff', strokeWidth: 2 }}
-              />
-              <Line
-                type="monotone"
-                dataKey="enteredCumulativeNet"
-                stroke="#66bb6a"
-                name="Entered Trades"
-                dot={<CustomDotEntered />}
-                activeDot={{ r: 6, stroke: '#fff', strokeWidth: 2 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      )}
     </div>
   );
 };

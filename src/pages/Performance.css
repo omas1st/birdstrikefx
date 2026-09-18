@@ -1,23 +1,66 @@
+/* Make the page fill the viewport (no body scroll) */
 .performance-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 16px;
+  height: calc(100vh - 118px); /* header (70px) + main-content padding (2 * 24px) */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.performance-container h2 {
+.performance-header h2 {
   color: #4fc3f7;
-  margin-bottom: 24px;
+  font-size: 1.5rem;
+  margin: 0 0 12px 0;
+  text-align: center;
 }
 
+/* Centered professional tabs */
+.performance-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #2d2d44;
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  color: #888;
+  padding: 10px 32px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+  text-transform: uppercase;
+}
+
+.tab-btn:hover {
+  color: #4fc3f7;
+}
+
+.tab-btn.active {
+  color: #4fc3f7;
+  border-bottom-color: #4fc3f7;
+}
+
+/* Compact filter bar – keep Range and RR on the same line */
 .filters {
   display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
+  flex-wrap: nowrap;
+  gap: 12px;
   align-items: center;
+  justify-content: center;
   background: #1a1a2e;
-  padding: 20px;
-  border-radius: 12px;
-  margin-bottom: 24px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  border: 1px solid #2d2d44;
+  overflow-x: auto;
 }
 
 .filters label {
@@ -25,55 +68,91 @@
   align-items: center;
   gap: 6px;
   color: #aaa;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .filters select,
 .filters input {
   background: #0f0f1f;
   border: 1px solid #333;
-  border-radius: 6px;
-  padding: 8px 12px;
+  border-radius: 4px;
+  padding: 4px 8px;
   color: #eee;
+  font-size: 0.8rem;
+  white-space: nowrap;
 }
 
+/* Content area – fills remaining height, scrolls only if needed */
+.performance-content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Stats table */
 .stats-table {
-  margin-bottom: 32px;
-  overflow-x: auto;
+  background: #1a1a2e;
+  border-radius: 8px;
+  overflow: auto;
+  border: 1px solid #2d2d44;
+  flex: 1;
+  min-height: 0;
 }
 
 .stats-table table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 600px;
 }
 
 .stats-table th,
 .stats-table td {
-  padding: 12px;
+  padding: 6px 12px;
   border-bottom: 1px solid #2d2d44;
   text-align: left;
+  font-size: 0.85rem;
 }
 
 .stats-table th {
   background: #252540;
   color: #4fc3f7;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .stats-table td {
   color: #ccc;
 }
 
+/* Chart */
 .chart-section {
   background: #1a1a2e;
-  padding: 24px;
+  padding: 16px;
   border-radius: 12px;
-  margin-top: 24px;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .chart-section h3 {
   color: #ddd;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
+  font-size: 1rem;
+}
+
+.fullscreen-chart {
+  flex: 1;
+}
+
+.chart-wrapper {
+  flex: 1;
+  min-height: 0;
 }
 
 /* Tooltip styles */
