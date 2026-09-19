@@ -38,8 +38,7 @@ const TradesData = () => {
   const [sortBy, setSortBy] = useState('date');
   const [sortOrder, setSortOrder] = useState('desc');
 
-  // Edit modal state
-  const [editingTrade, setEditingTrade] = useState(null); // trade object being edited
+  const [editingTrade, setEditingTrade] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [editForm, setEditForm] = useState({
     date: '',
@@ -154,7 +153,6 @@ const TradesData = () => {
     }
   };
 
-  // Open edit modal with pre-filled data
   const handleEditClick = (trade) => {
     setEditingTrade(trade);
     setEditForm({
@@ -168,13 +166,11 @@ const TradesData = () => {
     setShowModal(true);
   };
 
-  // Close modal
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingTrade(null);
   };
 
-  // Handle edit form field changes
   const handleEditFormChange = (e) => {
     const { name, value, type, checked } = e.target;
     setEditForm((prev) => ({
@@ -183,7 +179,6 @@ const TradesData = () => {
     }));
   };
 
-  // Submit edited trade
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     if (!editingTrade) return;
@@ -238,64 +233,89 @@ const TradesData = () => {
         <p>Loss Rate: {stats.lossRate}%</p>
       </div>
 
-      <div className="filters">
-        <label>Time Range:
-          <select value={selectedTimeRange} onChange={(e) => {
-            setSelectedTimeRange(e.target.value);
-            if (e.target.value !== 'custom') { setCustomStart(''); setCustomEnd(''); }
-          }}>
-            {timeRangeOptions.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+      <div className="trades-filters">
+        <div className="trades-filter-item">
+          <label>Time Range</label>
+          <select
+            value={selectedTimeRange}
+            onChange={(e) => {
+              setSelectedTimeRange(e.target.value);
+              if (e.target.value !== 'custom') { setCustomStart(''); setCustomEnd(''); }
+            }}
+          >
+            {timeRangeOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
           </select>
-        </label>
+        </div>
+
         {selectedTimeRange === 'custom' && (
           <>
-            <label>Start: <input type="date" value={customStart} onChange={(e) => setCustomStart(e.target.value)} /></label>
-            <label>End: <input type="date" value={customEnd} onChange={(e) => setCustomEnd(e.target.value)} /></label>
+            <div className="trades-filter-item">
+              <label>Start Date</label>
+              <input type="date" value={customStart} onChange={(e) => setCustomStart(e.target.value)} />
+            </div>
+            <div className="trades-filter-item">
+              <label>End Date</label>
+              <input type="date" value={customEnd} onChange={(e) => setCustomEnd(e.target.value)} />
+            </div>
           </>
         )}
-        <label>Outcome:
+
+        <div className="trades-filter-item">
+          <label>Outcome</label>
           <select value={outcomeFilter} onChange={(e) => setOutcomeFilter(e.target.value)}>
             <option value="">All</option>
             <option value="win">Win</option>
             <option value="loss">Loss</option>
           </select>
-        </label>
-        <label>Pair:
+        </div>
+
+        <div className="trades-filter-item">
+          <label>Pair</label>
           <select value={pairFilter} onChange={(e) => setPairFilter(e.target.value)}>
             <option value="">All</option>
             {PAIRS.map((p) => <option key={p} value={p}>{p}</option>)}
           </select>
-        </label>
-        <label>Strategy:
+        </div>
+
+        <div className="trades-filter-item">
+          <label>Strategy</label>
           <select value={strategyFilter} onChange={(e) => setStrategyFilter(e.target.value)}>
             <option value="">All</option>
             {STRATEGIES.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
-        </label>
-        <label>Sort By:
+        </div>
+
+        <div className="trades-filter-item">
+          <label>Sort By</label>
           <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
             <option value="">None</option>
             <option value="date">Date</option>
             <option value="pair">Pair</option>
             <option value="outcome">Outcome</option>
           </select>
-        </label>
+        </div>
+
         {sortBy && (
-          <label>Order:
+          <div className="trades-filter-item">
+            <label>Order</label>
             <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
               <option value="asc">Ascending</option>
               <option value="desc">Descending</option>
             </select>
-          </label>
+          </div>
         )}
-        <label>Records per page:
+
+        <div className="trades-filter-item">
+          <label>Records per Page</label>
           <select value={limit} onChange={(e) => setLimit(e.target.value === 'all' ? 'all' : Number(e.target.value))}>
             <option value={10}>10</option>
             <option value={100}>100</option>
             <option value={1000}>1000</option>
             <option value="all">All</option>
           </select>
-        </label>
+        </div>
       </div>
 
       <button onClick={downloadTradesPDF}>Download Trades PDF</button>
@@ -309,9 +329,9 @@ const TradesData = () => {
                 <th>Pair</th>
                 <th>Strategy</th>
                 <th>Outcome</th>
-                <th>Reason</th>
                 <th>Entered</th>
                 <th>Action</th>
+                <th>Reason</th>
               </tr>
             </thead>
             <tbody>
@@ -321,22 +341,16 @@ const TradesData = () => {
                   <td>{trade.pair}</td>
                   <td>{trade.strategy}</td>
                   <td>{trade.outcome}</td>
-                  <td>{trade.reason || 'A+ setup'}</td>
                   <td>{trade.entered ? 'Yes' : 'No'}</td>
                   <td>
-                    <button
-                      className="edit-trade-btn"
-                      onClick={() => handleEditClick(trade)}
-                    >
+                    <button className="edit-trade-btn" onClick={() => handleEditClick(trade)}>
                       ✏️ Edit
                     </button>
-                    <button
-                      className="delete-trade-btn"
-                      onClick={() => handleDeleteTrade(trade._id)}
-                    >
+                    <button className="delete-trade-btn" onClick={() => handleDeleteTrade(trade._id)}>
                       🗑️ Delete
                     </button>
                   </td>
+                  <td>{trade.reason || 'A+ setup'}</td>
                 </tr>
               ))}
             </tbody>
@@ -344,7 +358,6 @@ const TradesData = () => {
         </div>
       )}
 
-      {/* Edit Modal */}
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">

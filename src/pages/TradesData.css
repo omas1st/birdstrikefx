@@ -1,7 +1,7 @@
 .trades-data-container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 16px; /* add some horizontal padding for small screens */
+  padding: 0 16px;
 }
 
 .trades-data-container h2 {
@@ -24,45 +24,68 @@
   border: 1px solid #2d2d44;
   color: #ccc;
   font-weight: 500;
-  flex: 1 1 180px; /* flexible boxes so they shrink and wrap nicely */
+  flex: 1 1 180px;
   text-align: center;
 }
 
-/* Filter section – main container */
-.filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  align-items: center;
+/* === Filter section – unique classes, no collision with other pages === */
+.trades-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
   background: #1a1a2e;
-  padding: 20px;
+  padding: 16px;
   border-radius: 12px;
   margin-bottom: 20px;
   border: 1px solid #2d2d44;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* Each filter label + input/select wrapped together */
-.filters label {
+.trades-filter-item {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 6px;
-  color: #aaa;
-  font-size: 0.85rem;
-  /* Let them grow/shrink */
-  flex: 1 1 auto;
-  min-width: 140px;
+  background: #14141f;
+  border: 1px solid #2d2d44;
+  border-radius: 8px;
+  padding: 10px 12px;
+  transition: border-color 0.2s;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
-/* Inputs & selects inside filters */
-.filters select,
-.filters input {
+.trades-filter-item:hover {
+  border-color: #3d3d5c;
+}
+
+.trades-filter-item label {
+  color: #8f9bb3;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.trades-filter-item select,
+.trades-filter-item input {
+  width: 100%;
   background: #0f0f1f;
   border: 1px solid #333;
   border-radius: 6px;
-  padding: 8px 12px;
+  padding: 8px 10px;
   color: #eee;
-  max-width: 100%;
-  flex: 1 1 auto;
+  font-size: 0.85rem;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.trades-filter-item select:focus,
+.trades-filter-item input:focus {
+  outline: none;
+  border-color: #4fc3f7;
 }
 
 /* Buttons */
@@ -81,10 +104,12 @@ button {
 #trades-table {
   max-height: 600px;
   overflow-y: auto;
+  overflow-x: auto;
   background: #1a1a2e;
   border-radius: 12px;
   padding: 0;
   border: 1px solid #2d2d44;
+  -webkit-overflow-scrolling: touch;
 }
 
 #trades-table table {
@@ -99,21 +124,15 @@ button {
   z-index: 1;
 }
 
-/* Override default th/td from global if needed */
 #trades-table th,
 #trades-table td {
   padding: 10px 12px;
   text-align: left;
   border-bottom: 1px solid #2d2d44;
-  white-space: nowrap; /* prevent line breaks on small columns */
+  white-space: nowrap;
 }
 
-/* On very narrow screens, allow table to scroll horizontally if needed */
-#trades-table {
-  overflow-x: auto;
-}
-
-/* ---- Delete button styling ---- */
+/* Delete button */
 .delete-trade-btn {
   background: transparent;
   color: #ff5252;
@@ -123,7 +142,7 @@ button {
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s;
-  margin: 0; /* overrides button margin for table cells */
+  margin: 0;
 }
 
 .delete-trade-btn:hover {
@@ -131,49 +150,7 @@ button {
   color: #fff;
 }
 
-/* ---- Responsive adjustments ---- */
-@media (max-width: 768px) {
-  .filters {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-    padding: 16px;
-  }
-
-  .filters label {
-    /* stack label and select/input vertically */
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
-  }
-
-  .filters select,
-  .filters input {
-    width: 100%;
-  }
-
-  .stats {
-    flex-direction: column;
-  }
-
-  .stats p {
-    flex: 1 1 auto;
-  }
-}
-
-@media (max-width: 480px) {
-  .trades-data-container {
-    padding: 0 8px;
-  }
-
-  #trades-table th,
-  #trades-table td {
-    padding: 8px 6px;
-    font-size: 0.8rem;
-  }
-}
-
-/* Edit button styling */
+/* Edit button */
 .edit-trade-btn {
   background: transparent;
   color: #ffa726;
@@ -274,4 +251,41 @@ button {
 .cancel-btn:hover {
   background: #ff5252;
   color: #fff;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 900px) {
+  .stats {
+    flex-direction: column;
+  }
+  .stats p {
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .trades-filters {
+    grid-template-columns: 1fr;
+    padding: 12px;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .trades-data-container {
+    padding: 0 8px;
+  }
+  .trades-filter-item select,
+  .trades-filter-item input {
+    font-size: 0.8rem;
+    padding: 8px 10px;
+  }
+  .trades-filter-item label {
+    font-size: 0.65rem;
+  }
+  #trades-table th,
+  #trades-table td {
+    padding: 8px 6px;
+    font-size: 0.8rem;
+  }
 }

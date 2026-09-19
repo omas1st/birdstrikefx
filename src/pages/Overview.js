@@ -117,37 +117,100 @@ const Overview = () => {
     );
   };
 
+  // Rewritten PDF export: stacks sections compactly, adds divider lines, no big gaps.
   const downloadPDF = async () => {
     if (selectedSections.length === 0) {
       alert('Please select at least one section to download');
       return;
     }
     const pdf = new jsPDF('p', 'mm', 'a4');
-    let isFirstPage = true;
+    const pageWidth = 210;
+    const pageHeight = 297;
+    const marginX = 10;
+    const marginTop = 10;
+    const marginBottom = 10;
+    const contentWidth = pageWidth - marginX * 2; // 190mm
+    const dividerGap = 4;       // space above divider
+    const dividerAfter = 4;     // space below divider
 
-    for (const sectionId of selectedSections) {
+    let currentY = marginTop;
+
+    for (let i = 0; i < selectedSections.length; i++) {
+      const sectionId = selectedSections[i];
       const element = document.getElementById(sectionId);
       if (!element) continue;
-      const canvas = await html2canvas(element, { scale: 2 });
+
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        backgroundColor: '#0f0f0f',
+        useCORS: true,
+      });
       const imgData = canvas.toDataURL('image/png');
-      const imgWidth = 210;
-      const pageHeight = 295;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-      let position = 0;
+      const imgHeight = (canvas.height * contentWidth) / canvas.width;
 
-      if (!isFirstPage) pdf.addPage();
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
+      // If image fits on remaining space, place it; otherwise start a new page.
+      if (currentY + imgHeight <= pageHeight - marginBottom) {
+        pdf.addImage(imgData, 'PNG', marginX, currentY, contentWidth, imgHeight);
+        currentY += imgHeight;
+      } else if (imgHeight <= pageHeight - marginTop - marginBottom) {
+        // Fits on a fresh page
         pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+        currentY = marginTop;
+        pdf.addImage(imgData, 'PNG', marginX, currentY, contentWidth, imgHeight);
+        currentY += imgHeight;
+      } else {
+        // Section taller than a full page → slice across pages
+        // Start on a new page if there's no room
+        if (currentY > marginTop) {
+          pdf.addPage();
+          currentY = marginTop;
+        }
+        let remainingHeight = imgHeight;
+        let srcY = 0;
+        while (remainingHeight > 0) {
+          const availHeight = pageHeight - currentY - marginBottom;
+          const drawHeight = Math.min(remainingHeight, availHeight);
+          const srcHeight = (drawHeight / imgHeight) * canvas.height;
+
+          // Crop a slice of the canvas
+          const slice = document.createElement('canvas');
+          slice.width = canvas.width;
+          slice.height = srcHeight;
+          const ctx = slice.getContext('2d');
+          ctx.drawImage(
+            canvas,
+            0, srcY, canvas.width, srcHeight,
+            0, 0, canvas.width, srcHeight
+          );
+          const sliceData = slice.toDataURL('image/png');
+          pdf.addImage(sliceData, 'PNG', marginX, currentY, contentWidth, drawHeight);
+
+          srcY += srcHeight;
+          remainingHeight -= drawHeight;
+          currentY += drawHeight;
+
+          if (remainingHeight > 0) {
+            pdf.addPage();
+            currentY = marginTop;
+          }
+        }
       }
-      isFirstPage = false;
+
+      // Draw divider line after every section except the last
+      if (i < selectedSections.length - 1) {
+        currentY += dividerGap;
+        // If we're too close to bottom, move divider to a new page top
+        if (currentY > pageHeight - marginBottom - 2) {
+          pdf.addPage();
+          currentY = marginTop;
+        }
+        pdf.setDrawColor(79, 195, 247); // #4fc3f7
+        pdf.setLineWidth(0.3);
+        pdf.line(marginX, currentY, pageWidth - marginX, currentY);
+        currentY += dividerAfter;
+      }
     }
+
     pdf.save('overview.pdf');
   };
 
@@ -188,6 +251,23 @@ const Overview = () => {
       {loading && <p className="loading-message">Loading...</p>}
       {data && (
         <>
+          {/* Section 10 Tabular Summary – now first after filter */}
+          <div id="section10" className="section">
+            <h3>Tabular Summary</h3>
+            <table>
+              <thead>
+                <tr><th>Metric</th><th>Value</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Total Trades</td><td>{data.totalTrades}</td></tr>
+                <tr><td>Total Wins</td><td>{data.totalWins}</td></tr>
+                <tr><td>Total Losses</td><td>{data.totalLosses}</td></tr>
+                <tr><td>Win Rate</td><td>{data.winRate}%</td></tr>
+                <tr><td>Loss Rate</td><td>{data.lossRate}%</td></tr>
+              </tbody>
+            </table>
+          </div>
+
           {/* Section 2 Top Pairs Wins */}
           <div id="section2" className="section">
             <h3>Top {topN} Pairs with Most Wins</h3>
@@ -342,31 +422,14 @@ const Overview = () => {
               <p className="no-data">No data available</p>
             )}
           </div>
-
-          {/* Section 10 Tabular Summary */}
-          <div id="section10" className="section">
-            <h3>Tabular Summary</h3>
-            <table>
-              <thead>
-                <tr><th>Metric</th><th>Value</th></tr>
-              </thead>
-              <tbody>
-                <tr><td>Total Trades</td><td>{data.totalTrades}</td></tr>
-                <tr><td>Total Wins</td><td>{data.totalWins}</td></tr>
-                <tr><td>Total Losses</td><td>{data.totalLosses}</td></tr>
-                <tr><td>Win Rate</td><td>{data.winRate}%</td></tr>
-                <tr><td>Loss Rate</td><td>{data.lossRate}%</td></tr>
-              </tbody>
-            </table>
-          </div>
         </>
       )}
 
-      {/* PDF Download Section – removed section1b from the list */}
+      {/* PDF Download Section – new order reflects visual order */}
       <div className="pdf-download-section">
         <h3>Download PDF</h3>
         <div className="section-checkboxes">
-          {['section1a','section2','section3','section4','section5','section6','section7a','section7b','section8','section9','section10'].map((id) => (
+          {['section1a','section10','section2','section3','section4','section5','section6','section7a','section7b','section8','section9'].map((id) => (
             <label key={id}>
               <input
                 type="checkbox"
