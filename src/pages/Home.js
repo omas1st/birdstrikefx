@@ -9,9 +9,9 @@ const CONTACT_EMAIL = 'birdstrikefx@gmail.com';
 const BUTTONS = [
   { label: 'Setup Analysis', route: '/setup', locked: true },
   { label: 'Record Trade', route: '/record-trade', locked: true },
-  { label: 'Overview', route: '/overview', locked: false },
+  { label: 'Overview', route: '/overview', locked: true },
   { label: 'Trades Data', route: '/trades-data', locked: true },
-  { label: 'Final Analysis', route: '/final-analysis', locked: false },
+  { label: 'Final Analysis', route: '/final-analysis', locked: true },
   { label: 'Performance', route: '/performance', locked: false },
   { label: 'Calendar', route: '/performance-calendar', locked: false },
 ];
