@@ -32,6 +32,11 @@
   cursor: pointer;
   transition: all 0.25s ease;
   min-width: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
 }
 
 .home-btn:hover {
@@ -40,4 +45,119 @@
   border-color: #4fc3f7;
   transform: translateY(-3px);
   box-shadow: 0 8px 25px rgba(79, 195, 247, 0.3);
+}
+
+/* Locked button styling */
+.home-btn.locked {
+  border-color: #ffa726;
+}
+
+.home-btn.locked:hover {
+  background: #ffa726;
+  color: #0a0a0a;
+  border-color: #ffa726;
+  box-shadow: 0 8px 25px rgba(255, 167, 38, 0.3);
+}
+
+.lock-icon {
+  font-size: 0.95rem;
+}
+
+/* PIN Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal-content.pin-modal {
+  background: #1a1a2e;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 28px;
+  width: 90%;
+  max-width: 380px;
+  color: #ddd;
+  text-align: center;
+}
+
+.pin-modal h3 {
+  color: #4fc3f7;
+  margin-bottom: 8px;
+  font-size: 1.4rem;
+}
+
+.pin-hint {
+  color: #888;
+  font-size: 0.85rem;
+  margin-bottom: 20px;
+}
+
+.pin-input {
+  width: 100%;
+  background: #0f0f1f;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: #eee;
+  font-size: 1.1rem;
+  letter-spacing: 6px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.pin-input:focus {
+  outline: none;
+  border-color: #4fc3f7;
+}
+
+.pin-error {
+  color: #ff5252;
+  font-size: 0.82rem;
+  margin-bottom: 12px;
+  line-height: 1.3;
+}
+
+.pin-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.pin-submit-btn {
+  background: #4fc3f7;
+  color: #0a0a0a;
+  font-weight: 600;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.pin-submit-btn:hover {
+  background: #3aa8d8;
+}
+
+.pin-cancel-btn {
+  background: transparent;
+  color: #ff5252;
+  border: 1px solid #ff5252;
+  padding: 10px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pin-cancel-btn:hover {
+  background: #ff5252;
+  color: #fff;
 }
