@@ -37,6 +37,7 @@ const ratioOptions = [
 ];
 
 const Performance = () => {
+  const [allTradesForFilters, setAllTradesForFilters] = useState([]);
   const [currentPeriodTrades, setCurrentPeriodTrades] = useState([]);
   const [previousPeriodTrades, setPreviousPeriodTrades] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -45,8 +46,42 @@ const Performance = () => {
   const [customEnd, setCustomEnd] = useState('');
   const [riskReward, setRiskReward] = useState(2);
 
+  // New filter states
+  const [selectedPair, setSelectedPair] = useState('All');
+  const [selectedStrategy, setSelectedStrategy] = useState('All');
+  const [selectedSetup, setSelectedSetup] = useState('All');
+
   // Tab state
   const [activeTab, setActiveTab] = useState('table');
+
+  // Load all trades once for populating filter options
+  useEffect(() => {
+    const fetchAll = async () => {
+      try {
+        const res = await getTrades({ limit: 0, sortBy: 'date', sortOrder: 'asc' });
+        setAllTradesForFilters(res.data.trades);
+      } catch (err) {
+        console.error('Failed to load filter options', err);
+      }
+    };
+    fetchAll();
+  }, []);
+
+  // Derive unique filter options
+  const uniquePairs = useMemo(() => {
+    const set = new Set(allTradesForFilters.map(t => t.pair));
+    return ['All', ...Array.from(set).sort((a, b) => a.localeCompare(b))];
+  }, [allTradesForFilters]);
+
+  const uniqueStrategies = useMemo(() => {
+    const set = new Set(allTradesForFilters.map(t => t.strategy));
+    return ['All', ...Array.from(set).sort((a, b) => a.localeCompare(b))];
+  }, [allTradesForFilters]);
+
+  const uniqueSetups = useMemo(() => {
+    const set = new Set(allTradesForFilters.map(t => `${t.pair}||${t.strategy}`));
+    return ['All', ...Array.from(set).sort((a, b) => a.localeCompare(b))];
+  }, [allTradesForFilters]);
 
   // Build date filter
   const buildDateFilter = useCallback((range, startCustom, endCustom) => {
@@ -111,7 +146,8 @@ const Performance = () => {
     };
   }, []);
 
-  const fetchPeriodTrades = useCallback(async (range, startCustom, endCustom) => {
+  // Fetch trades with optional pair/strategy filters
+  const fetchPeriodTrades = useCallback(async (range, startCustom, endCustom, pairFilter, strategyFilter) => {
     const { startDate, endDate } = buildDateFilter(range, startCustom, endCustom);
     const params = {
       startDate,
@@ -120,15 +156,27 @@ const Performance = () => {
       sortBy: 'date',
       sortOrder: 'asc',
     };
+    if (pairFilter && pairFilter !== 'All') params.pair = pairFilter;
+    if (strategyFilter && strategyFilter !== 'All') params.strategy = strategyFilter;
     const res = await getTrades(params);
     return res.data.trades;
   }, [buildDateFilter]);
 
+  // Load data whenever any filter changes
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
       try {
-        const curr = await fetchPeriodTrades(selectedRange, customStart, customEnd);
+        // Setup overrides pair and strategy
+        let effPair = selectedPair;
+        let effStrategy = selectedStrategy;
+        if (selectedSetup !== 'All') {
+          const [p, s] = selectedSetup.split('||');
+          effPair = p;
+          effStrategy = s;
+        }
+
+        const curr = await fetchPeriodTrades(selectedRange, customStart, customEnd, effPair, effStrategy);
         setCurrentPeriodTrades(curr);
 
         if (selectedRange === 'overall' || selectedRange === 'today') {
@@ -139,7 +187,7 @@ const Performance = () => {
             const duration = new Date(currEnd).getTime() - new Date(currStart).getTime();
             const prevEnd = new Date(new Date(currStart).getTime() - 1);
             const prevStart = new Date(prevEnd.getTime() - duration);
-            const prev = await fetchPeriodTrades('custom', prevStart.toISOString().slice(0,10), prevEnd.toISOString().slice(0,10));
+            const prev = await fetchPeriodTrades('custom', prevStart.toISOString().slice(0,10), prevEnd.toISOString().slice(0,10), effPair, effStrategy);
             setPreviousPeriodTrades(prev);
           } else {
             setPreviousPeriodTrades([]);
@@ -152,7 +200,28 @@ const Performance = () => {
       }
     };
     loadData();
-  }, [selectedRange, customStart, customEnd, fetchPeriodTrades, buildDateFilter]);
+  }, [selectedRange, customStart, customEnd, selectedPair, selectedStrategy, selectedSetup, fetchPeriodTrades, buildDateFilter]);
+
+  // Filter change handlers
+  const handlePairChange = (e) => {
+    setSelectedPair(e.target.value);
+    setSelectedSetup('All');
+  };
+
+  const handleStrategyChange = (e) => {
+    setSelectedStrategy(e.target.value);
+    setSelectedSetup('All');
+  };
+
+  const handleSetupChange = (e) => {
+    const setup = e.target.value;
+    setSelectedSetup(setup);
+    if (setup !== 'All') {
+      const [p, s] = setup.split('||');
+      setSelectedPair(p);
+      setSelectedStrategy(s);
+    }
+  };
 
   const computeStats = useCallback((trades) => {
     const total = trades.length;
@@ -330,7 +399,7 @@ const Performance = () => {
         </button>
       </div>
 
-      {/* Compact filters */}
+      {/* Compact filters – now includes Pair, Strategy, Setup */}
       <div className="filters compact">
         <label>Range:
           <select value={selectedRange} onChange={(e) => {
@@ -346,6 +415,24 @@ const Performance = () => {
             <label>To: <input type="date" value={customEnd} onChange={(e) => setCustomEnd(e.target.value)} /></label>
           </>
         )}
+        <label>Pair:
+          <select value={selectedPair} onChange={handlePairChange}>
+            {uniquePairs.map(p => <option key={p} value={p}>{p}</option>)}
+          </select>
+        </label>
+        <label>Strategy:
+          <select value={selectedStrategy} onChange={handleStrategyChange}>
+            {uniqueStrategies.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </label>
+        <label>Setup:
+          <select value={selectedSetup} onChange={handleSetupChange}>
+            {uniqueSetups.map(s => {
+              const display = s === 'All' ? 'All' : s.replace('||', ' + ');
+              return <option key={s} value={s}>{display}</option>;
+            })}
+          </select>
+        </label>
         <label>RR:
           <select value={riskReward} onChange={(e) => setRiskReward(Number(e.target.value))}>
             {ratioOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
@@ -353,7 +440,7 @@ const Performance = () => {
         </label>
       </div>
 
-      {/* Content area (only this scrolls if needed) */}
+      {/* Content area */}
       <div className="performance-content">
         {activeTab === 'table' && (
           <div className="stats-table">

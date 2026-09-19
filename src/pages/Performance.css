@@ -48,11 +48,11 @@
   border-bottom-color: #4fc3f7;
 }
 
-/* Compact filter bar – keep Range and RR on the same line */
+/* Compact filter bar – wraps onto new rows as needed */
 .filters {
   display: flex;
-  flex-wrap: nowrap;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 10px 14px;
   align-items: center;
   justify-content: center;
   background: #1a1a2e;
@@ -60,7 +60,6 @@
   border-radius: 8px;
   margin-bottom: 12px;
   border: 1px solid #2d2d44;
-  overflow-x: auto;
 }
 
 .filters label {
@@ -70,7 +69,6 @@
   color: #aaa;
   font-size: 0.8rem;
   white-space: nowrap;
-  flex-shrink: 0;
 }
 
 .filters select,
