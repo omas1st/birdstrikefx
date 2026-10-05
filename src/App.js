@@ -9,7 +9,8 @@ import Overview from './pages/Overview';
 import TradesData from './pages/TradesData';
 import FinalAnalysis from './pages/FinalAnalysis';
 import Performance from './pages/Performance';
-import PerformanceCalendar from './pages/PerformanceCalendar'; // new import
+import PerformanceCalendar from './pages/PerformanceCalendar';
+import SetupStats from './pages/SetupStats';
 import './App.css';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
               <Route path="/final-analysis" element={<FinalAnalysis />} />
               <Route path="/performance" element={<Performance />} />
               <Route path="/performance-calendar" element={<PerformanceCalendar />} />
+              <Route path="/setup-stats" element={<SetupStats />} />
             </Routes>
           </main>
         </div>

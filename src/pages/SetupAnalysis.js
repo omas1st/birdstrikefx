@@ -80,8 +80,16 @@ const SetupAnalysis = () => {
       ) : (
         <ul className="setup-list">
           {setups.map((setup) => (
-            <li key={setup._id} className="setup-item">
-              <span>{setup.pair} - {setup.strategy}</span>
+            <li
+              key={setup._id}
+              className={`setup-item ${setup.onProbation ? 'on-probation' : ''}`}
+            >
+              <span>
+                {setup.pair} - {setup.strategy}
+                {setup.onProbation && (
+                  <span className="probation-badge">ON PROBATION</span>
+                )}
+              </span>
               <button className="delete-btn" onClick={() => handleDelete(setup._id)}>
                 Delete
               </button>

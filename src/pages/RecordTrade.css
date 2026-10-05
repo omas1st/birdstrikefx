@@ -49,3 +49,17 @@
 .submit-btn {
   margin-top: 8px;
 }
+
+.probation-banner {
+  background: #2a2015;
+  border-left: 4px solid #ffa726;
+  color: #ffd699;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.probation-banner strong {
+  color: #ffa726;
+}

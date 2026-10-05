@@ -1,0 +1,259 @@
+.setup-stats-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 16px 32px;
+}
+
+.setup-stats-container h2 {
+  color: #4fc3f7;
+  margin-bottom: 24px;
+  font-size: 1.8rem;
+}
+
+.loading-message {
+  color: #aaa;
+}
+
+/* ===== Failure Threshold Analysis ===== */
+.advice-box {
+  background: #1a1a2e;
+  border: 1px solid #2d2d44;
+  border-radius: 12px;
+  padding: 22px 26px;
+  margin-bottom: 24px;
+  border-left: 5px solid #4fc3f7;
+}
+
+.advice-box.warn {
+  border-left-color: #ff5252;
+}
+
+.advice-box.warn-light {
+  border-left-color: #ffa726;
+}
+
+.advice-box.ok {
+  border-left-color: #4caf50;
+}
+
+.advice-box.ok-light {
+  border-left-color: #8bc34a;
+}
+
+.advice-box.neutral {
+  border-left-color: #888;
+}
+
+.advice-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.advice-header h3 {
+  color: #4fc3f7;
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.advice-tag {
+  background: #252540;
+  color: #ccc;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid #333;
+}
+
+.advice-box.warn .advice-tag {
+  color: #ff5252;
+  border-color: #ff5252;
+}
+
+.advice-box.warn-light .advice-tag {
+  color: #ffa726;
+  border-color: #ffa726;
+}
+
+.advice-box.ok .advice-tag,
+.advice-box.ok-light .advice-tag {
+  color: #4caf50;
+  border-color: #4caf50;
+}
+
+.advice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.advice-metric {
+  background: #14141f;
+  border: 1px solid #2d2d44;
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metric-label {
+  color: #8f9bb3;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metric-value {
+  color: #eee;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.advice-text {
+  color: #ccc;
+  line-height: 1.6;
+  font-size: 0.95rem;
+  margin: 0;
+  padding: 12px 16px;
+  background: #14141f;
+  border-radius: 8px;
+  border: 1px dashed #333;
+}
+
+/* ===== Collapsible sections ===== */
+.collapsible-section {
+  background: #1a1a2e;
+  border: 1px solid #2d2d44;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.collapsible-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background: #252540;
+  color: #ddd;
+  border: none;
+  padding: 16px 20px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  text-align: left;
+}
+
+.collapsible-header:hover {
+  background: #2d2d52;
+}
+
+.chevron {
+  color: #4fc3f7;
+  font-size: 0.9rem;
+}
+
+.collapsible-body {
+  padding: 20px;
+}
+
+/* ===== Tables ===== */
+.no-data {
+  color: #888;
+  font-style: italic;
+  padding: 10px 0;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
+}
+
+.collapsible-body table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+}
+
+.collapsible-body th,
+.collapsible-body td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid #2d2d44;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.collapsible-body th {
+  background: #252540;
+  color: #4fc3f7;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.collapsible-body td {
+  color: #ccc;
+}
+
+.collapsible-body tbody tr:hover td {
+  background: #2a2a3e;
+}
+
+.win-cell {
+  color: #4caf50 !important;
+  font-weight: 600;
+}
+
+.loss-cell {
+  color: #ff5252 !important;
+  font-weight: 600;
+}
+
+.insight-cell {
+  color: #ffa726 !important;
+  font-size: 0.78rem !important;
+  max-width: 260px;
+  white-space: normal !important;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .setup-stats-container {
+    padding: 0 8px 24px;
+  }
+
+  .advice-box {
+    padding: 16px;
+  }
+
+  .advice-grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+
+  .collapsible-header {
+    padding: 12px 14px;
+    font-size: 0.95rem;
+  }
+
+  .collapsible-body {
+    padding: 14px;
+  }
+
+  .collapsible-body th,
+  .collapsible-body td {
+    padding: 8px 10px;
+    font-size: 0.75rem;
+  }
+}

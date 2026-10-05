@@ -4,7 +4,7 @@ import './RecordTrade.css';
 
 const RecordTrade = () => {
   const [setups, setSetups] = useState([]);
-  const [selectedSetup, setSelectedSetup] = useState(''); // stores the setup ID
+  const [selectedSetup, setSelectedSetup] = useState('');
   const [pair, setPair] = useState('');
   const [strategy, setStrategy] = useState('');
   const [outcome, setOutcome] = useState('');
@@ -12,6 +12,7 @@ const RecordTrade = () => {
   const [reason, setReason] = useState('A+ setup');
   const [entered, setEntered] = useState(true);
   const [message, setMessage] = useState('');
+  const [probationWarning, setProbationWarning] = useState(false);
 
   useEffect(() => {
     const fetchSetups = async () => {
@@ -21,7 +22,6 @@ const RecordTrade = () => {
     fetchSetups();
   }, []);
 
-  // Handle setup selection: auto-fill pair and strategy
   const handleSetupChange = (e) => {
     const setupId = e.target.value;
     setSelectedSetup(setupId);
@@ -31,10 +31,12 @@ const RecordTrade = () => {
       if (setup) {
         setPair(setup.pair);
         setStrategy(setup.strategy);
+        setProbationWarning(!!setup.onProbation);
       }
     } else {
       setPair('');
       setStrategy('');
+      setProbationWarning(false);
     }
   };
 
@@ -54,7 +56,6 @@ const RecordTrade = () => {
         entered,
       });
       setMessage('Trade successfully recorded');
-      // Reset all fields
       setSelectedSetup('');
       setPair('');
       setStrategy('');
@@ -62,6 +63,7 @@ const RecordTrade = () => {
       setDate(new Date().toISOString().slice(0, 10));
       setReason('A+ setup');
       setEntered(true);
+      setProbationWarning(false);
     } catch (err) {
       setMessage('Error recording trade');
     }
@@ -76,7 +78,6 @@ const RecordTrade = () => {
           <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
         </div>
 
-        {/* New: Setup dropdown */}
         <div className="form-group">
           <label>Setup</label>
           <select value={selectedSetup} onChange={handleSetupChange}>
@@ -84,12 +85,19 @@ const RecordTrade = () => {
             {setups.map((setup) => (
               <option key={setup._id} value={setup._id}>
                 {setup.pair} - {setup.strategy}
+                {setup.onProbation ? ' (ON PROBATION)' : ''}
               </option>
             ))}
           </select>
         </div>
 
-        {/* Pair and Strategy are auto-filled and read-only */}
+        {probationWarning && (
+          <div className="probation-banner">
+            ⚠️ <strong>This setup is on probation</strong> (2 consecutive losses).
+            Reduce your position size and stay alert — a 3rd consecutive loss will remove this setup.
+          </div>
+        )}
+
         <div className="form-group">
           <label>Pair</label>
           <input type="text" value={pair} readOnly className="auto-strategy" placeholder="Auto-filled from setup" />

@@ -5,7 +5,6 @@ import './Home.css';
 const VALID_PINS = ['6812', '5623', '0682'];
 const CONTACT_EMAIL = 'birdstrikefx@gmail.com';
 
-// Mapping of button label to route and lock state
 const BUTTONS = [
   { label: 'Setup Analysis', route: '/setup', locked: true },
   { label: 'Record Trade', route: '/record-trade', locked: true },
@@ -14,6 +13,7 @@ const BUTTONS = [
   { label: 'Final Analysis', route: '/final-analysis', locked: true },
   { label: 'Performance', route: '/performance', locked: false },
   { label: 'Calendar', route: '/performance-calendar', locked: false },
+  { label: 'Setup Statistics', route: '/setup-stats', locked: false },
 ];
 
 const Home = () => {
@@ -70,7 +70,6 @@ const Home = () => {
         ))}
       </div>
 
-      {/* PIN Modal */}
       {showPinModal && (
         <div className="modal-overlay" onClick={handleCloseModal}>
           <div className="modal-content pin-modal" onClick={(e) => e.stopPropagation()}>

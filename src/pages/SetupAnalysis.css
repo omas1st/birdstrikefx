@@ -117,3 +117,22 @@
 .delete-btn:hover {
   background: #e04848;
 }
+
+/* Probation styling */
+.setup-item.on-probation {
+  border-color: #ffa726;
+  background: #2a2015;
+}
+
+.probation-badge {
+  display: inline-block;
+  margin-left: 10px;
+  background: #ffa726;
+  color: #1a1a2e;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  vertical-align: middle;
+}
