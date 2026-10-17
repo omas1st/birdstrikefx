@@ -288,3 +288,13 @@
     font-size: 0.78rem;
   }
 }
+
+/* Stale Setup styling */
+.tag-stale {
+  background: #607d8b;
+  color: #fff;
+}
+
+.list-item.stale-setup {
+  border-left: 3px solid #607d8b;
+}

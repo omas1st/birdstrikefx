@@ -212,8 +212,36 @@ const FinalAnalysis = () => {
         )}
       </CollapsibleSection>
 
-      {/* vi. Advice */}
-      <CollapsibleSection title="vi. Advice">
+      {/* vi. Stale Setups (No trades in 100 days) */}
+      <CollapsibleSection
+        title="vi. Stale Setups (No trades in 100+ days)"
+        badge={analysis.staleSetups?.length || 0}
+      >
+        <p>These active setups haven't produced a trade in over 100 days. Consider if they need adjusting or removing.</p>
+        {analysis.staleSetups?.length > 0 ? (
+          <ol className="item-list numbered">
+            {analysis.staleSetups.map((s, i) => (
+              <li key={i} className="list-item stale-setup">
+                <div className="item-main">
+                  <span className="item-name">
+                    {s.pair} - {s.strategy}
+                  </span>
+                  <span className="item-tag tag-stale">STALE</span>
+                </div>
+                <div className="item-meta">
+                  Last trade: {s.lastTradeDate ? formatDate(s.lastTradeDate) : 'Never traded'} 
+                  <strong> ({s.daysSinceLastTrade} days ago)</strong>
+                </div>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p>No stale setups found.</p>
+        )}
+      </CollapsibleSection>
+
+      {/* vii. Advice */}
+      <CollapsibleSection title="vii. Advice">
         {analysis.advice?.length > 0 ? (
           <ul>
             {analysis.advice.map((adv, i) => (
@@ -225,14 +253,14 @@ const FinalAnalysis = () => {
         )}
       </CollapsibleSection>
 
-      {/* vii. Strategy support */}
-      <CollapsibleSection title="vii. Strategy Support">
+      {/* viii. Strategy support */}
+      <CollapsibleSection title="viii. Strategy Support">
         {analysis.strategyAdvice ? <p>{analysis.strategyAdvice}</p> : <p>No issues.</p>}
       </CollapsibleSection>
 
-      {/* viii. Recent 10-trade pattern */}
+      {/* ix. Recent 10-trade pattern */}
       <CollapsibleSection
-        title="viii. Recent 10-Trade Pattern (Probation & Failed Setups)"
+        title="ix. Recent 10-Trade Pattern (Probation & Failed Setups)"
         badge={analysis.recentPatternSetups?.length || 0}
       >
         <p className="section-hint">
@@ -290,9 +318,9 @@ const FinalAnalysis = () => {
         )}
       </CollapsibleSection>
 
-      {/* ix. Setup durations */}
+      {/* x. Setup durations */}
       <CollapsibleSection
-        title="ix. Setup Failure/Restore Durations"
+        title="x. Setup Failure/Restore Durations"
         badge={analysis.setupDurations?.length || 0}
       >
         {analysis.setupDurations?.length > 0 ? (
